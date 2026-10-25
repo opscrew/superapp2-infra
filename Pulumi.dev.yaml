@@ -1,0 +1,5 @@
+config:
+  superapp2-infra:kubeContext: kind-clu-dev
+  superapp2-infra:cluster: clu-dev
+  superapp2-infra:image: superapp2:dev
+  superapp2-infra:memoryLimit: 128Mi

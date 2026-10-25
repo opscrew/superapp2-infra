@@ -1,0 +1,4 @@
+name: superapp2-infra
+runtime:
+  name: nodejs
+description: Deploys superapp2 to Kubernetes. Sample IaC repo for Ops-Crew.
