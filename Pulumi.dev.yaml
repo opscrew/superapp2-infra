@@ -3,3 +3,4 @@ config:
   superapp2-infra:cluster: clu-dev
   superapp2-infra:image: superapp2:dev
   superapp2-infra:memoryLimit: 128Mi
+encryptionsalt: v1:1xx6tPyoIK4=:v1:+8v6kw0MU7XpBhu/:oIZXIX75gpsEtd3K6rUxFkA5MG3NJA==
