@@ -2,5 +2,5 @@ config:
   superapp2-infra:kubeContext: kind-clu-prod
   superapp2-infra:cluster: clu-prod
   superapp2-infra:image: superapp2:dev
-  superapp2-infra:memoryLimit: 640Mi
+  superapp2-infra:memoryLimit: 1Gi
 encryptionsalt: v1:bFbURquh/Tk=:v1:6RbCs782tYxhTaMl:RPCyRh10l3U7uz6hNBRE+Xhp0S0OiA==
