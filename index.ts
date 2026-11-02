@@ -8,7 +8,10 @@ const kubeContext = config.require("kubeContext");
 const cluster = config.require("cluster");
 const image = config.get("image") ?? "ghcr.io/opscrew/superapp2:latest";
 const memoryLimit = config.get("memoryLimit") ?? "128Mi";
-const cpuLimit = config.get("cpuLimit") ?? "200m";
+const cpuLimit = config.get("cpuLimit") ?? "1";
+// Up to normalMaxRps requests per second superapp2 answers at once; from saturatedRps it burns a full core.
+const normalMaxRps = config.get("normalMaxRps") ?? "3";
+const saturatedRps = config.get("saturatedRps") ?? "6";
 
 const provider = new k8s.Provider(cluster, { context: kubeContext });
 
@@ -32,12 +35,17 @@ const deployment = new k8s.apps.v1.Deployment(
               image,
               imagePullPolicy: image.startsWith("ghcr.io/") ? "Always" : "IfNotPresent",
               ports: [{ containerPort: 8080, name: "http" }],
-              env: [{ name: "APP_VERSION", value: "1.0.0" }],
+              env: [
+                { name: "APP_VERSION", value: "1.0.0" },
+                { name: "NORMAL_MAX_RPS", value: normalMaxRps },
+                { name: "SATURATED_RPS", value: saturatedRps },
+              ],
               resources: {
                 requests: { cpu: "50m", memory: "32Mi" },
                 limits: { cpu: cpuLimit, memory: memoryLimit },
               },
-              readinessProbe: { httpGet: { path: "/healthz", port: "http" }, periodSeconds: 5 },
+              // Slow is not down: a saturated superapp2 answers its probe late but answers, and stays in its Service.
+              readinessProbe: { httpGet: { path: "/healthz", port: "http" }, periodSeconds: 10, timeoutSeconds: 10, failureThreshold: 3 },
             },
           ],
         },

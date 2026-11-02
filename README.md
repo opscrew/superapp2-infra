@@ -11,7 +11,7 @@ pulumi stack select prod --create
 pulumi up --yes --refresh
 ```
 
-Config keys: `kubeContext` (required, pins the cluster), `image`, `memoryLimit`, `cpuLimit`.
+Config keys: `kubeContext` (required, pins the cluster), `image`, `memoryLimit`, `cpuLimit` (default `1`, a full core, so superapp2 can saturate one), `normalMaxRps` (default 3) and `saturatedRps` (default 6), the request rates where superapp2 starts to burn CPU and where it is saturated. Its readiness probe waits up to 10 seconds, so a slow superapp2 stays in its Service.
 
 ## Stacks
 
