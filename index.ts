@@ -12,6 +12,8 @@ const cpuLimit = config.get("cpuLimit") ?? "1";
 // Up to normalMaxRps requests per second superapp2 answers at once; from saturatedRps it burns a full core.
 const normalMaxRps = config.get("normalMaxRps") ?? "3";
 const saturatedRps = config.get("saturatedRps") ?? "6";
+// Each pod counts its own request rate, so more replicas split the load: keep each under normalMaxRps.
+const replicas = config.getNumber("replicas") ?? 1;
 
 const provider = new k8s.Provider(cluster, { context: kubeContext });
 
@@ -24,7 +26,7 @@ const deployment = new k8s.apps.v1.Deployment(
   {
     metadata: { name: "superapp2", namespace: ns.metadata.name, labels },
     spec: {
-      replicas: 1,
+      replicas,
       selector: { matchLabels: labels },
       template: {
         metadata: { labels },
