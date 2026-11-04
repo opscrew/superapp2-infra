@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superapp2
+  labels: { app: superapp2 }
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: superapp2 }
+  template:
+    metadata:
+      labels: { app: superapp2 }
+    spec:
+      containers:
+        - name: superapp2
+          # Built and loaded into the preview cluster by OpsCrew's deploy/preview/preview.sh apps.
+          image: superapp2:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - { containerPort: 8080, name: http }
+          env:
+            - { name: APP_VERSION, value: "1.0.0" }
+            # Up to NORMAL_MAX_RPS requests per second superapp2 answers at once; from SATURATED_RPS it burns a
+            # full core. Each pod counts its own request rate, so more replicas split the load.
+            - { name: NORMAL_MAX_RPS, value: "3" }
+            - { name: SATURATED_RPS, value: "6" }
+          resources:
+            requests: { cpu: 50m, memory: 32Mi }
+            # A full core, so superapp2 can saturate one.
+            limits: { cpu: "1" }
+          # Slow is not down: a saturated superapp2 answers its probe late but answers, and stays in its Service.
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3

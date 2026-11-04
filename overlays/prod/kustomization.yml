@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  # The Kubernetes Cluster OpsCrew knows this environment's cluster as.
+  - target: { kind: Namespace, name: superapp2 }
+    patch: |
+      - { op: add, path: /metadata/labels, value: { ops-crew.io/cluster: clu-prod } }
+  - path: resources.yml

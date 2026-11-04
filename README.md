@@ -1,22 +1,13 @@
 # superapp2-infra
 
-Pulumi program deploying [superapp2](../superapp2) to Kubernetes. Sample IaC repo for Ops-Crew: the memory limit lives in `Pulumi.<stack>.yaml` and `index.ts`, which is what Ops-Crew's pull requests change.
+Kubernetes manifests deploying [superapp2](../superapp2), with Kustomize. Sample infrastructure repository for OpsCrew: `base/` holds what every environment shares, and `overlays/prod/` what prod sets, such as superapp2's replicas and memory limit in `overlays/prod/resources.yml`, which is what OpsCrew's pull requests change.
 
 ```sh
-npm install
-export PULUMI_BACKEND_URL=file://$PWD/.pulumi   # local state; or `pulumi login` to your backend
-export PULUMI_CONFIG_PASSPHRASE=''
-export KUBECONFIG=~/.local/share/opscrew-preview/kubeconfig   # the OpsCrew preview's cluster
-pulumi stack select prod --create
-pulumi up --yes --refresh
+kubectl kustomize overlays/prod   # what prod gets
 ```
 
-Config keys: `kubeContext` (required, pins the cluster), `image`, `memoryLimit`, `cpuLimit` (default `1`, a full core, so superapp2 can saturate one), `normalMaxRps` (default 3) and `saturatedRps` (default 6), the request rates where superapp2 starts to burn CPU and where it is saturated. Its readiness probe waits up to 10 seconds, so a slow superapp2 stays in its Service.
+superapp2 takes `NORMAL_MAX_RPS` (3) and `SATURATED_RPS` (6), the request rates where it starts to burn CPU and where it is saturated; its CPU limit is a full core so it can saturate one, and its readiness probe waits up to 10 seconds, so a slow superapp2 stays in its Service.
 
-## Stacks
+## Deploying
 
-One stack, `prod`, deploying to the kind cluster of OpsCrew's preview environment (`deploy/preview/preview.sh` in the OpsCrew repository): context `kind-opscrew-preview` in the preview's own kubeconfig, which OpsCrew knows as the Kubernetes Cluster `clu-prod`. The stack sets `kubeContext`, `cluster`, `image` and `memoryLimit`; the program labels the namespace with `ops-crew.io/cluster`. `--refresh` matters: when the preview cluster is recreated, the local state still lists what the old one had.
-
-## Clusters
-
-The cluster is the OpsCrew preview's; this repository only deploys superapp2 into it.
+Argo CD in OpsCrew's preview environment (`deploy/preview/preview.sh` in the OpsCrew repository) watches `overlays/prod` on `main` for the preview's kind cluster, which OpsCrew knows as the Kubernetes Cluster `clu-prod`, but syncs superapp2 only when asked: `deploy/preview/preview.sh sync superapp2`. A merge leaves superapp2 OutOfSync until then. Self-heal is off. The image is `superapp2:dev`, built and loaded into the cluster by `preview.sh apps`.

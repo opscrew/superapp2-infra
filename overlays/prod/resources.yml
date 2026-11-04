@@ -1,0 +1,14 @@
+# superapp2's replicas and memory limit in prod: the base sets one replica and no memory limit. Three replicas
+# keep each pod under NORMAL_MAX_RPS at the load superapp sends.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: superapp2
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+        - name: superapp2
+          resources:
+            limits: { memory: 128Mi }
