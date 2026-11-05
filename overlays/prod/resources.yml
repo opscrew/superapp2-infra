@@ -1,5 +1,8 @@
 # superapp2's replicas and memory limit in prod: the base sets one replica and no memory limit. Three replicas
 # keep each pod under NORMAL_MAX_RPS at the load superapp sends.
+# 256Mi rather than the previous 128Mi: superapp2's steady working set is ~18MiB, so a 128Mi ceiling left no
+# headroom and every burst on the busy pods ended in OOMKilled. The request is raised with it, so the pod is
+# scheduled with the room it needs rather than only being allowed to grow.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,4 +14,5 @@ spec:
       containers:
         - name: superapp2
           resources:
-            limits: { memory: 128Mi }
+            requests: { memory: 64Mi }
+            limits: { memory: 256Mi }
