@@ -1,10 +1,10 @@
 # superapp2's replicas and memory limit in prod: the base sets one replica and no memory limit. Three replicas
 # keep each pod under NORMAL_MAX_RPS at the load superapp sends.
 # 384Mi rather than the previous 256Mi (and 128Mi before that): superapp2's steady working set is ~18-27MiB, but
-# it spikes well above that in bursts and each burst on the busy pods ended in OOMKilled at 256Mi.
+# it spikes well above that in bursts, and the busy pods ended in OOMKilled at 256Mi.
 # 384Mi rather than 512Mi because the Node is small: with 3 pods and their requests, a 512Mi limit could not be
 # scheduled and the rollover would leave the pods Pending. The request is raised with it (64Mi -> 128Mi), so the
-# steady working set has real headroom reserved and the scheduler still has ~108Mi left over.
+# steady working set has real headroom reserved and the scheduler still leaves the Node some room above the requests.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
