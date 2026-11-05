@@ -4,7 +4,7 @@
 # it spikes well above that in bursts, and the busy pods ended in OOMKilled at 256Mi.
 # 384Mi rather than 512Mi because the Node is small: with 3 pods and their requests, a 512Mi limit could not be
 # scheduled and the rollover would leave the pods Pending. The request is raised with it (64Mi -> 128Mi), so the
-# steady working set has real headroom reserved and the scheduler still leaves the Node some room above the requests.
+# steady working set has real headroom reserved.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
