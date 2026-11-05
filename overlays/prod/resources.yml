@@ -11,4 +11,4 @@ spec:
       containers:
         - name: superapp2
           resources:
-            limits: { memory: 256Mi }
+            limits: { memory: 512Mi }
