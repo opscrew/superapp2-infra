@@ -5,14 +5,15 @@
 # CPU (NORMAL_MAX_RPS is 3) and took ~4.85 s, which timed out at superapp's 3000 ms upstream timeout and made
 # SuperappSlow fire. Six replicas put about 1.2 rps on each pod at that load.
 #
-# The replicas the comment above asks for are now actually set: the overlay still pinned 1 replica, so the load
-# landed on a single pod and SuperappSlow kept firing (p95 ~4.85 s) whenever superapp was above 3 rps.
+# The replicas the comment above asks for are now actually set: the overlay pinned 1 replica, so the load landed
+# on a single pod and SuperappSlow kept firing (p95 ~4.85 s, then 9-14 s at 4-7 rps) whenever superapp was above
+# 3 rps. Six replicas give ~0.7-1.2 rps per pod at that load, under NORMAL_MAX_RPS.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: superapp2
 spec:
-  replicas: 1
+  replicas: 6
   template:
     spec:
       containers:
