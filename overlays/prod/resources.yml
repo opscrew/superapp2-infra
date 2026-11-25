@@ -4,12 +4,15 @@
 # Six replicas: superapp called superapp2 at about 7 rps while only one replica was Ready, so each call burned
 # CPU (NORMAL_MAX_RPS is 3) and took ~4.85 s, which timed out at superapp's 3000 ms upstream timeout and made
 # SuperappSlow fire. Six replicas put about 1.2 rps on each pod at that load.
+#
+# The replicas the comment above asks for are now actually set: the overlay still pinned 1 replica, so the load
+# landed on a single pod and SuperappSlow kept firing (p95 ~4.85 s) whenever superapp was above 3 rps.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: superapp2
 spec:
-  replicas: 1
+  replicas: 6
   template:
     spec:
       containers:
