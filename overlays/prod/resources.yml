@@ -12,7 +12,7 @@ kind: Deployment
 metadata:
   name: superapp2
 spec:
-  replicas: 6
+  replicas: 1
   template:
     spec:
       containers:
