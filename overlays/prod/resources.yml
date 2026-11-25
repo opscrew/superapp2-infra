@@ -1,11 +1,15 @@
 # superapp2's replicas and memory limit in prod: the base sets one replica and no memory limit. Three replicas
 # keep each pod under NORMAL_MAX_RPS at the load superapp sends.
+#
+# Six replicas: superapp called superapp2 at about 7 rps while only one replica was Ready, so each call burned
+# CPU (NORMAL_MAX_RPS is 3) and took ~4.85 s, which timed out at superapp's 3000 ms upstream timeout and made
+# SuperappSlow fire. Six replicas put about 1.2 rps on each pod at that load.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: superapp2
 spec:
-  replicas: 1
+  replicas: 6
   template:
     spec:
       containers:
